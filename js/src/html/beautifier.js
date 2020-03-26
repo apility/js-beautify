@@ -36,7 +36,7 @@ var TOKEN = require('../html/tokenizer').TOKEN;
 var lineBreak = /\r\n|[\r\n]/;
 var allLineBreaks = /\r\n|[\r\n]/g;
 
-var Printer = function(options, base_indent_string) { //handles input/output and some other printing functions
+var Printer = function (options, base_indent_string) { //handles input/output and some other printing functions
 
   this.indent_level = 0;
   this.alignment_size = 0;
@@ -47,26 +47,26 @@ var Printer = function(options, base_indent_string) { //handles input/output and
 
 };
 
-Printer.prototype.current_line_has_match = function(pattern) {
+Printer.prototype.current_line_has_match = function (pattern) {
   return this._output.current_line.has_match(pattern);
 };
 
-Printer.prototype.set_space_before_token = function(value, non_breaking) {
+Printer.prototype.set_space_before_token = function (value, non_breaking) {
   this._output.space_before_token = value;
   this._output.non_breaking_space = non_breaking;
 };
 
-Printer.prototype.set_wrap_point = function() {
+Printer.prototype.set_wrap_point = function () {
   this._output.set_indent(this.indent_level, this.alignment_size);
   this._output.set_wrap_point();
 };
 
 
-Printer.prototype.add_raw_token = function(token) {
+Printer.prototype.add_raw_token = function (token) {
   this._output.add_raw_token(token);
 };
 
-Printer.prototype.print_preserved_newlines = function(raw_token) {
+Printer.prototype.print_preserved_newlines = function (raw_token) {
   var newlines = 0;
   if (raw_token.type !== TOKEN.TEXT && raw_token.previous.type !== TOKEN.TEXT) {
     newlines = raw_token.newlines ? 1 : 0;
@@ -82,7 +82,7 @@ Printer.prototype.print_preserved_newlines = function(raw_token) {
   return newlines !== 0;
 };
 
-Printer.prototype.traverse_whitespace = function(raw_token) {
+Printer.prototype.traverse_whitespace = function (raw_token) {
   if (raw_token.whitespace_before || raw_token.newlines) {
     if (!this.print_preserved_newlines(raw_token)) {
       this._output.space_before_token = true;
@@ -92,26 +92,26 @@ Printer.prototype.traverse_whitespace = function(raw_token) {
   return false;
 };
 
-Printer.prototype.previous_token_wrapped = function() {
+Printer.prototype.previous_token_wrapped = function () {
   return this._output.previous_token_wrapped;
 };
 
-Printer.prototype.print_newline = function(force) {
+Printer.prototype.print_newline = function (force) {
   this._output.add_new_line(force);
 };
 
-Printer.prototype.print_token = function(token) {
+Printer.prototype.print_token = function (token) {
   if (token.text) {
     this._output.set_indent(this.indent_level, this.alignment_size);
     this._output.add_token(token.text);
   }
 };
 
-Printer.prototype.indent = function() {
+Printer.prototype.indent = function () {
   this.indent_level++;
 };
 
-Printer.prototype.get_full_indent = function(level) {
+Printer.prototype.get_full_indent = function (level) {
   level = this.indent_level + (level || 0);
   if (level < 1) {
     return '';
@@ -120,7 +120,7 @@ Printer.prototype.get_full_indent = function(level) {
   return this._output.get_indent_string(level);
 };
 
-var get_type_attribute = function(start_token) {
+var get_type_attribute = function (start_token) {
   var result = null;
   var raw_token = start_token.next;
 
@@ -139,7 +139,7 @@ var get_type_attribute = function(start_token) {
   return result;
 };
 
-var get_custom_beautifier_name = function(tag_check, raw_token) {
+var get_custom_beautifier_name = function (tag_check, raw_token) {
   var typeAttribute = null;
   var result = null;
 
@@ -187,16 +187,16 @@ function TagStack(printer) {
   this._current_frame = null;
 }
 
-TagStack.prototype.get_parser_token = function() {
+TagStack.prototype.get_parser_token = function () {
   return this._current_frame ? this._current_frame.parser_token : null;
 };
 
-TagStack.prototype.record_tag = function(parser_token) { //function to record a tag and its parent in this.tags Object
+TagStack.prototype.record_tag = function (parser_token) { //function to record a tag and its parent in this.tags Object
   var new_frame = new TagFrame(this._current_frame, parser_token, this._printer.indent_level);
   this._current_frame = new_frame;
 };
 
-TagStack.prototype._try_pop_frame = function(frame) { //function to retrieve the opening tag to the corresponding closer
+TagStack.prototype._try_pop_frame = function (frame) { //function to retrieve the opening tag to the corresponding closer
   var parser_token = null;
 
   if (frame) {
@@ -208,7 +208,7 @@ TagStack.prototype._try_pop_frame = function(frame) { //function to retrieve the
   return parser_token;
 };
 
-TagStack.prototype._get_frame = function(tag_list, stop_list) { //function to retrieve the opening tag to the corresponding closer
+TagStack.prototype._get_frame = function (tag_list, stop_list) { //function to retrieve the opening tag to the corresponding closer
   var frame = this._current_frame;
 
   while (frame) { //till we reach '' (the initial value);
@@ -224,12 +224,12 @@ TagStack.prototype._get_frame = function(tag_list, stop_list) { //function to re
   return frame;
 };
 
-TagStack.prototype.try_pop = function(tag, stop_list) { //function to retrieve the opening tag to the corresponding closer
+TagStack.prototype.try_pop = function (tag, stop_list) { //function to retrieve the opening tag to the corresponding closer
   var frame = this._get_frame([tag], stop_list);
   return this._try_pop_frame(frame);
 };
 
-TagStack.prototype.indent_to_tag = function(tag_list) {
+TagStack.prototype.indent_to_tag = function (tag_list) {
   var frame = this._get_frame(tag_list);
   if (frame) {
     this._printer.indent_level = frame.indent_level;
@@ -258,7 +258,7 @@ function Beautifier(source_text, options, js_beautify, css_beautify) {
   this._is_wrap_attributes_preserve_aligned = (this._options.wrap_attributes === 'preserve-aligned');
 }
 
-Beautifier.prototype.beautify = function() {
+Beautifier.prototype.beautify = function () {
 
   // if disabled, return the input unchanged.
   if (this._options.disabled) {
@@ -266,6 +266,51 @@ Beautifier.prototype.beautify = function() {
   }
 
   var source_text = this._source_text;
+
+  source_text = source_text.replace(/\{\{(--)?((?:(?!(--)?\}\}).)+)(--)?\}\}/g, function (m, ds, c, dh, de) {
+    if (c) {
+      c = c.replace(/(^[ \t]*|[ \t]*$)/g, '');
+      c = c.replace(/'/g, '&#39;');
+      c = c.replace(/"/g, '&#34;');
+      c = encodeURIComponent(c);
+    }
+    return "{{" + (ds ? ds : "") + c + (de ? de : "") + "}}";
+  });
+  source_text = source_text.replace(/^[ \t]*@([a-z]+)([^\n]*)$/gim, function (m, d, c) {
+    if (c) {
+      c = c.replace(/'/g, '&#39;');
+      c = c.replace(/"/g, '&#34;');
+      c = "|" + encodeURIComponent(c);
+    }
+    switch (d) {
+      case 'break':
+      case 'case':
+      case 'continue':
+      case 'default':
+      case 'empty':
+      case 'endsection':
+      case 'else':
+      case 'elseif':
+      case 'extends':
+      case 'csrf':
+      case 'include':
+      case 'json':
+      case 'method':
+      case 'parent':
+      case 'section':
+      case 'stack':
+      case 'yield':
+      case 'show':
+        return "<blade " + d + c + "/>";
+      default:
+        if (d.startsWith('end')) {
+          return "</blade " + d + c + ">";
+        } else {
+          return "<blade " + d + c + ">";
+        }
+    }
+  });
+
   var eol = this._options.eol;
   if (this._options.eol === 'auto') {
     eol = '\n';
@@ -316,10 +361,47 @@ Beautifier.prototype.beautify = function() {
   }
   var sweet_code = printer._output.get_code(eol);
 
+  sweet_code = sweet_code.replace(/^([ \t]*)<\/?blade ([a-z]+)\|?([^>\/]+)?\/?>$/gim, function toDirective(m, s, d, c) {
+    if (c) {
+      c = decodeURIComponent(c);
+      c = c.replace(/&#39;/g, "'");
+      c = c.replace(/&#34;/g, '"');
+      c = c.replace(/^[ \t]*/g, '');
+    } else {
+      c = "";
+    }
+    if (!s) {
+      s = "";
+    }
+    switch (d) {
+      case 'else':
+      case 'elseif':
+      case 'empty':
+        s = s.replace(printer._output.__indent_cache.__indent_string, '');
+        break;
+    }
+    return s + "@" + d + c.trim();
+  });
+  sweet_code = sweet_code.replace(/@(case|default)((?:(?!@break).|\n)+)@break/gim, function addMoreIndent(m, t, c) {
+    var indent = printer._output.__indent_cache.__base_string;
+    c = c.replace(/\n/g, "\n" + indent + printer._output.__indent_cache.__indent_string);
+    c = c.replace(new RegExp(indent + '@' + t, 'gi'), '@' + t);
+    return "@" + t + c + "@break";
+  });
+  sweet_code = sweet_code.replace(/\{\{(--)?((?:(?!(--)?\}\}).)+)(--)?\}\}/g, function (m, ds, c, dh, de) {
+    if (c) {
+      c = decodeURIComponent(c);
+      c = c.replace(/&#39;/g, "'");
+      c = c.replace(/&#34;/g, '"');
+      c = c.replace(/(^[ \t]*|[ \t]*$)/g, ' ');
+    }
+    return "{{" + (ds ? ds : "") + c + (de ? de : "") + "}}";
+  });
+
   return sweet_code;
 };
 
-Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_token) {
+Beautifier.prototype._handle_tag_close = function (printer, raw_token, last_tag_token) {
   var parser_token = {
     text: raw_token.text,
     type: raw_token.type
@@ -357,7 +439,7 @@ Beautifier.prototype._handle_tag_close = function(printer, raw_token, last_tag_t
   return parser_token;
 };
 
-Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_token, tokens) {
+Beautifier.prototype._handle_inside_tag = function (printer, raw_token, last_tag_token, tokens) {
   var wrapped = last_tag_token.has_wrapped_attrs;
   var parser_token = {
     text: raw_token.text,
@@ -423,7 +505,7 @@ Beautifier.prototype._handle_inside_tag = function(printer, raw_token, last_tag_
   return parser_token;
 };
 
-Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token) {
+Beautifier.prototype._handle_text = function (printer, raw_token, last_tag_token) {
   var parser_token = {
     text: raw_token.text,
     type: 'TK_CONTENT'
@@ -439,7 +521,7 @@ Beautifier.prototype._handle_text = function(printer, raw_token, last_tag_token)
   return parser_token;
 };
 
-Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token, last_tag_token) {
+Beautifier.prototype._print_custom_beatifier_text = function (printer, raw_token, last_tag_token) {
   var local = this;
   if (raw_token.text !== '') {
 
@@ -453,7 +535,7 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
     } else if (last_tag_token.custom_beautifier_name === 'css' && typeof this._css_beautify === 'function') {
       _beautifier = this._css_beautify;
     } else if (last_tag_token.custom_beautifier_name === 'html') {
-      _beautifier = function(html_source, options) {
+      _beautifier = function (html_source, options) {
         var beautifier = new Beautifier(html_source, options, local._js_beautify, local._css_beautify);
         return beautifier.beautify();
       };
@@ -506,7 +588,7 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
       if (_beautifier) {
 
         // call the Beautifier if avaliable
-        var Child_options = function() {
+        var Child_options = function () {
           this.eol = '\n';
         };
         Child_options.prototype = this._options.raw_options;
@@ -542,7 +624,7 @@ Beautifier.prototype._print_custom_beatifier_text = function(printer, raw_token,
   }
 };
 
-Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_token, last_token) {
+Beautifier.prototype._handle_tag_open = function (printer, raw_token, last_tag_token, last_token) {
   var parser_token = this._get_tag_open_token(raw_token);
 
   if ((last_tag_token.is_unformatted || last_tag_token.is_content_unformatted) &&
@@ -571,7 +653,7 @@ Beautifier.prototype._handle_tag_open = function(printer, raw_token, last_tag_to
   return parser_token;
 };
 
-var TagOpenParserToken = function(parent, raw_token) {
+var TagOpenParserToken = function (parent, raw_token) {
   this.parent = parent || null;
   this.text = '';
   this.type = 'TK_TAG_OPEN';
@@ -625,7 +707,7 @@ var TagOpenParserToken = function(parent, raw_token) {
   }
 };
 
-Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to get a full tag and parse its type
+Beautifier.prototype._get_tag_open_token = function (raw_token) { //function to get a full tag and parse its type
   var parser_token = new TagOpenParserToken(this._tag_stack.get_parser_token(), raw_token);
 
   parser_token.alignment_size = this._options.wrap_attributes_indent_size;
@@ -643,7 +725,7 @@ Beautifier.prototype._get_tag_open_token = function(raw_token) { //function to g
   return parser_token;
 };
 
-Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_token, last_tag_token, last_token) {
+Beautifier.prototype._set_tag_position = function (printer, raw_token, parser_token, last_tag_token, last_token) {
 
   if (!parser_token.is_empty_element) {
     if (parser_token.is_end_tag) { //this tag is a double tag so check for tag-ending
@@ -737,7 +819,7 @@ Beautifier.prototype._set_tag_position = function(printer, raw_token, parser_tok
 //To be used for <p> tag special case:
 //var p_closers = ['address', 'article', 'aside', 'blockquote', 'details', 'div', 'dl', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'table', 'ul'];
 
-Beautifier.prototype._do_optional_end_element = function(parser_token) {
+Beautifier.prototype._do_optional_end_element = function (parser_token) {
   var result = null;
   // NOTE: cases of "if there is no more content in the parent element"
   // are handled automatically by the beautifier.
